@@ -1,0 +1,15 @@
+$:
+  vscode:
+    - docker:
+        image:
+          name: docker.cnb.cool/cnbku/base/ubuntu:v1.1
+          # 使用此基础ComfyUI镜像构建
+          dockerUser: $CNB_TOKEN_USER_NAME
+          dockerPassword: $CNB_TOKEN
+      runner:
+        tags: cnb:arch:amd64:gpu
+      env:
+        CNB_WELCOME_EXECUTE_COMMAND: bash /workspace/assets/welcome.sh
+      services:
+        - vscode
+        - docker

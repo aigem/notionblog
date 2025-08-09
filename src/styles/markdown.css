@@ -1,0 +1,369 @@
+/* Markdown 内容样式 - 主题化版本，针对中文优化 */
+.markdown-content {
+  line-height: var(--leading-relaxed);
+  color: var(--color-textSecondary);
+  font-family: var(--font-sans);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  transition: color var(--duration-normal) var(--easing-easeInOut);
+}
+
+/* 重置所有可能冲突的样式 */
+.markdown-content * {
+  box-sizing: border-box;
+}
+
+/* 标题样式 - 中文友好 */
+.markdown-content h1 {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-textPrimary);
+  margin: var(--spacing-2xl) 0 var(--spacing-md) 0;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-primary);
+  line-height: var(--leading-tight);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content h2 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-textPrimary);
+  margin: var(--spacing-xl) 0 var(--spacing-sm) 0;
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-border);
+  line-height: var(--leading-tight);
+  transition: color var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-textPrimary);
+  margin: var(--spacing-lg) 0 var(--spacing-sm) 0;
+  line-height: var(--leading-tight);
+  transition: color var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content h4 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-textPrimary);
+  margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+  line-height: var(--leading-tight);
+  transition: color var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content h5,
+.markdown-content h6 {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-textPrimary);
+  margin: var(--spacing-sm) 0 var(--spacing-sm) 0;
+  line-height: var(--leading-tight);
+  transition: color var(--duration-normal) var(--easing-easeInOut);
+}
+
+/* 段落样式 */
+.markdown-content p {
+  margin: 0 0 var(--spacing-md) 0;
+  line-height: var(--leading-relaxed);
+  color: var(--color-textSecondary);
+  transition: color var(--duration-normal) var(--easing-easeInOut);
+}
+
+/* 列表样式 */
+.markdown-content ul,
+.markdown-content ol {
+  margin: 0 0 var(--spacing-md) 0;
+  padding-left: var(--spacing-xl);
+  color: var(--color-textSecondary);
+}
+
+.markdown-content li {
+  margin-bottom: var(--spacing-xs);
+  line-height: var(--leading-normal);
+  transition: color var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content ul li {
+  list-style-type: disc;
+}
+
+.markdown-content ol li {
+  list-style-type: decimal;
+}
+
+.markdown-content ul li::marker {
+  color: var(--color-primary);
+}
+
+.markdown-content ol li::marker {
+  color: var(--color-primary);
+  font-weight: var(--font-medium);
+}
+
+/* 代码样式 */
+.markdown-content code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background-color: var(--color-backgroundTertiary);
+  color: var(--color-accent);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  transition: all var(--duration-fast) var(--easing-easeOut);
+}
+
+.markdown-content code:hover {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+  box-shadow: 0 0 10px var(--color-glow);
+}
+
+.markdown-content pre {
+  background-color: var(--color-backgroundTertiary);
+  color: var(--color-textPrimary);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  margin: var(--spacing-md) 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 6px -1px var(--color-shadow);
+  transition: all var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content pre:hover {
+  box-shadow: 0 0 20px var(--color-glow);
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+/* 引用样式 */
+.markdown-content blockquote {
+  border-left: 4px solid var(--color-primary);
+  background: linear-gradient(135deg, var(--color-backgroundSecondary), var(--color-backgroundTertiary));
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  position: relative;
+  transition: all var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content blockquote::before {
+  content: '"';
+  position: absolute;
+  top: -10px;
+  left: var(--spacing-md);
+  font-size: var(--text-4xl);
+  color: var(--color-primary);
+  opacity: 0.3;
+}
+
+.markdown-content blockquote:hover {
+  box-shadow: 0 0 15px var(--color-glow);
+  transform: translateX(2px);
+}
+
+.markdown-content blockquote p {
+  margin: 0;
+  color: var(--color-textPrimary);
+  font-style: italic;
+  font-weight: var(--font-medium);
+}
+
+/* 表格样式 */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--spacing-md) 0;
+  font-size: var(--text-sm);
+  background-color: var(--color-backgroundSecondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px var(--color-shadow);
+  transition: all var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content table:hover {
+  box-shadow: 0 0 20px var(--color-glow);
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  transition: all var(--duration-fast) var(--easing-easeOut);
+}
+
+.markdown-content th {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  font-weight: var(--font-semibold);
+  color: var(--color-background);
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: var(--color-backgroundTertiary);
+}
+
+.markdown-content tr:hover {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+/* 链接样式 */
+.markdown-content a {
+  color: var(--color-primary);
+  text-decoration: none;
+  position: relative;
+  font-weight: var(--font-medium);
+  transition: all var(--duration-fast) var(--easing-easeOut);
+}
+
+.markdown-content a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  transition: width var(--duration-normal) var(--easing-easeOut);
+}
+
+.markdown-content a:hover {
+  color: var(--color-accent);
+  text-shadow: 0 0 8px var(--color-glow);
+}
+
+.markdown-content a:hover::after {
+  width: 100%;
+}
+
+/* 图片样式 */
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  margin: var(--spacing-md) 0;
+  display: block;
+  border: 2px solid var(--color-border);
+  transition: all var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content img:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 20px var(--color-glow);
+  transform: scale(1.02);
+}
+
+/* 分隔线 */
+.markdown-content hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  margin: var(--spacing-2xl) 0;
+  border-radius: var(--radius-full);
+  transition: all var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content hr:hover {
+  box-shadow: 0 0 10px var(--color-glow);
+}
+
+/* 强调样式 */
+.markdown-content strong {
+  font-weight: var(--font-bold);
+  color: var(--color-textPrimary);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: var(--color-accent);
+  font-weight: var(--font-medium);
+}
+
+.markdown-content del {
+  text-decoration: line-through;
+  color: var(--color-textMuted);
+  opacity: 0.7;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .markdown-content {
+    font-size: 0.9rem;
+  }
+  
+  .markdown-content h1 {
+    font-size: var(--text-2xl);
+  }
+  
+  .markdown-content h2 {
+    font-size: var(--text-xl);
+  }
+  
+  .markdown-content h3 {
+    font-size: var(--text-lg);
+  }
+  
+  .markdown-content pre {
+    font-size: var(--text-xs);
+    padding: var(--spacing-sm);
+  }
+  
+  .markdown-content table {
+    font-size: var(--text-xs);
+  }
+  
+  .markdown-content th,
+  .markdown-content td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .markdown-content blockquote {
+    padding: var(--spacing-sm);
+    margin: var(--spacing-sm) 0;
+  }
+}
+
+/* 特殊效果 - 代码高亮 */
+.markdown-content .highlight {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: var(--font-semibold);
+}
+
+/* 注释样式 */
+.markdown-content .note {
+  background-color: var(--color-backgroundSecondary);
+  border-left: 4px solid var(--color-accent);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  transition: all var(--duration-normal) var(--easing-easeInOut);
+}
+
+.markdown-content .note:hover {
+  box-shadow: 0 0 15px var(--color-glow);
+}

@@ -1,0 +1,40 @@
+{
+  "name": "dream-blog",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:static": "node -e \"require('fs').copyFileSync('next.config.export.js', 'next.config.js')\" && next build && node -e \"require('fs').copyFileSync('next.config.js', 'next.config.export.js')\"",
+    "start": "npx serve@latest out",
+    "lint": "next lint",
+    "fetch-data": "node scripts/fetch-notion-data.js",
+    "update-data": "npm run fetch-data && npm run build:static"
+  },
+  "dependencies": {
+    "@notionhq/client": "^4.0.1",
+    "@tailwindcss/postcss": "^4.1.11",
+    "autoprefixer": "^10.4.21",
+    "critters": "^0.0.23",
+    "dotenv": "^17.2.1",
+    "highlight.js": "^11.11.1",
+    "next": "15.4.5",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
+    "serve": "^14.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "15.1.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5"
+  }
+}

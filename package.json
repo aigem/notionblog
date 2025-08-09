@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "static": "pnpm update-data && pnpm start",
     "build": "next build",
     "build:static": "node -e \"require('fs').copyFileSync('next.config.export.js', 'next.config.js')\" && next build && node -e \"require('fs').copyFileSync('next.config.js', 'next.config.export.js')\"",
     "start": "npx serve@latest out",
     "lint": "next lint",
     "fetch-data": "node scripts/fetch-notion-data.js",
-    "update-data": "npm run fetch-data && npm run build:static"
+    "update-data": "pnpm run fetch-data && pnpm run build:static"
   },
   "dependencies": {
     "@notionhq/client": "^4.0.1",

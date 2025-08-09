@@ -29,7 +29,7 @@ export default function Footer() {
               )}
               {getSocialLink('twitter') && (
                 <a 
-                  href={`https://twitter.com/${getSocialLink('twitter').replace('@', '')}`} 
+                  href={`https://x.com/${getSocialLink('twitter').replace('@', '')}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-text-muted hover:text-primary theme-transition hover:theme-glow-sm p-1 rounded"

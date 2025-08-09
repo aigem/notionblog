@@ -5,6 +5,9 @@
 
 const WEBHOOK_URL = 'https://pages-api.cloud.tencent.com/v1/webhook/925b3880bb6f19ce0dca0c5f0b43727c6f0e97b0fd1fecbde8b4f94d44fac2fe';
 
+// 导入查看器函数
+import { addRequest } from './webhook-viewer';
+
 // 通用响应头
 function getHeaders() {
   return {
@@ -105,8 +108,25 @@ export async function onRequestPost(context: { request: Request; env?: any }) {
     };
 
     console.log('=== COMPLETE WEBHOOK DATA ===');
+    console.log('=== COMPLETE WEBHOOK DATA ===');
     console.log(JSON.stringify(fullLogData, null, 2));
     console.log('=============================');
+
+    // 记录到查看器
+    try {
+      const { addRequest } = await import('./webhook-viewer');
+      addRequest({
+        method: requestInfo.method,
+        url: requestInfo.url,
+        headers: allHeaders,
+        rawBody: requestBody,
+        parsedBody: parsedBody,
+        userAgent: requestInfo.userAgent,
+        contentType: requestInfo.contentType
+      });
+    } catch (e) {
+      console.log('Failed to add request to viewer:', e);
+    }
 
     // 准备转发数据
     const forwardData = {
@@ -168,7 +188,13 @@ export async function onRequestPost(context: { request: Request; env?: any }) {
         method: requestInfo.method,
         contentType: requestInfo.contentType,
         bodyLength: requestBody.length,
-        hasJsonBody: !!parsedBody
+        hasJsonBody: !!parsedBody,
+        // 添加实际收到的数据到响应中
+        receivedData: {
+          rawBody: requestBody,
+          parsedBody: parsedBody,
+          headers: allHeaders
+        }
       },
       forward: forwardStatus
     };

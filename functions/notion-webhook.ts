@@ -44,7 +44,7 @@ export function onRequestGet() {
 }
 
 // 处理 POST 请求 - 记录并转发数据
-export async function onRequestPost(context) {
+export async function onRequestPost(context: { request: Request; env?: any }) {
   const { request } = context;
   
   try {
@@ -64,11 +64,11 @@ export async function onRequestPost(context) {
         parsedBody = JSON.parse(body);
       }
     } catch (e) {
-      console.log('Failed to parse request body:', e.message);
+      console.log('Failed to parse request body:', e instanceof Error ? e.message : String(e));
     }
 
     // 收集请求头信息
-    const headers = {};
+    const headers: Record<string, string> = {};
     for (const [key, value] of request.headers.entries()) {
       headers[key] = value;
     }
@@ -124,11 +124,12 @@ export async function onRequestPost(context) {
 
       console.log('Forward result:', forwardResult);
     } catch (forwardError) {
+      const errorMessage = forwardError instanceof Error ? forwardError.message : String(forwardError);
       forwardResult = {
         success: false,
-        error: forwardError.message,
+        error: errorMessage,
       };
-      console.log('Forward failed:', forwardError.message);
+      console.log('Forward failed:', errorMessage);
     }
 
     // 返回处理结果
@@ -153,10 +154,11 @@ export async function onRequestPost(context) {
   } catch (error) {
     console.error('Webhook error:', error);
     
+    const errorMessage = error instanceof Error ? error.message : String(error);
     const errorResponse = {
       status: 'error',
       timestamp: new Date().toISOString(),
-      error: error.message,
+      error: errorMessage,
       message: 'Failed to process webhook request'
     };
 
@@ -168,7 +170,7 @@ export async function onRequestPost(context) {
 }
 
 // 兜底处理器 - 处理其他 HTTP 方法
-export function onRequest(context) {
+export function onRequest(context: { request: Request; env?: any }) {
   const { request } = context;
   
   return new Response(JSON.stringify({

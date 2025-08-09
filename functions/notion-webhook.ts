@@ -1,6 +1,6 @@
 /**
  * EdgeOne Pages Function: /notion-webhook
- * 简化版本，专注于接收和记录 POST 请求
+ * 简化版本，避免 EdgeOne 安全限制
  */
 
 const WEBHOOK_URL = 'https://pages-api.cloud.tencent.com/v1/webhook/925b3880bb6f19ce0dca0c5f0b43727c6f0e97b0fd1fecbde8b4f94d44fac2fe';
@@ -11,29 +11,42 @@ function getHeaders() {
     'Content-Type': 'application/json; charset=UTF-8',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+    'Cache-Control': 'no-cache',
+    'X-Webhook-Status': 'active',
   };
 }
 
 // 处理 OPTIONS 预检请求
 export function onRequestOptions() {
+  console.log('OPTIONS request received');
   return new Response(null, {
-    status: 200,
+    status: 204,
     headers: getHeaders(),
   });
 }
 
 // 处理 GET 请求 - 返回端点信息
-export function onRequestGet() {
+export function onRequestGet(context: { request: Request; env?: any }) {
+  const { request } = context;
+  
+  console.log('GET request received:', {
+    url: request.url,
+    userAgent: request.headers.get('user-agent'),
+    timestamp: new Date().toISOString()
+  });
+
   const response = {
     status: 'active',
     endpoint: '/notion-webhook',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'OPTIONS'],
     description: 'Webhook endpoint for receiving and logging POST requests',
     timestamp: new Date().toISOString(),
+    server: 'EdgeOne Pages Functions',
     usage: {
       get: 'Returns this information',
-      post: 'Logs received data and forwards to webhook'
+      post: 'Logs received data and forwards to webhook',
+      example: 'curl -X POST -H "Content-Type: application/json" -d \'{"test":"data"}\' YOUR_DOMAIN/notion-webhook'
     }
   };
 
@@ -47,119 +60,135 @@ export function onRequestGet() {
 export async function onRequestPost(context: { request: Request; env?: any }) {
   const { request } = context;
   
+  console.log('POST request started at:', new Date().toISOString());
+  
   try {
-    // 获取请求信息
-    const url = request.url;
-    const method = request.method;
-    const userAgent = request.headers.get('user-agent') || 'unknown';
-    const contentType = request.headers.get('content-type') || 'unknown';
-    
+    // 基本请求信息
+    const requestInfo = {
+      url: request.url,
+      method: request.method,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      contentType: request.headers.get('content-type') || 'unknown',
+      timestamp: new Date().toISOString()
+    };
+
     // 读取请求体
-    let body = '';
+    let requestBody = '';
     let parsedBody = null;
     
     try {
-      body = await request.text();
-      if (contentType.includes('application/json') && body) {
-        parsedBody = JSON.parse(body);
+      requestBody = await request.text();
+      console.log('Raw request body:', requestBody);
+      
+      if (requestInfo.contentType.includes('application/json') && requestBody) {
+        parsedBody = JSON.parse(requestBody);
+        console.log('Parsed JSON body:', parsedBody);
       }
-    } catch (e) {
-      console.log('Failed to parse request body:', e instanceof Error ? e.message : String(e));
+    } catch (parseError) {
+      const errorMsg = parseError instanceof Error ? parseError.message : String(parseError);
+      console.log('Body parse error:', errorMsg);
     }
 
-    // 收集请求头信息
-    const headers: Record<string, string> = {};
+    // 收集所有请求头
+    const allHeaders: Record<string, string> = {};
     for (const [key, value] of request.headers.entries()) {
-      headers[key] = value;
+      allHeaders[key] = value;
     }
 
-    // 记录到控制台
-    const logData = {
-      timestamp: new Date().toISOString(),
-      method,
-      url,
-      userAgent,
-      contentType,
-      headers,
-      rawBody: body,
-      parsedBody,
+    // 完整的日志记录
+    const fullLogData = {
+      ...requestInfo,
+      headers: allHeaders,
+      rawBody: requestBody,
+      parsedBody: parsedBody,
+      bodyLength: requestBody.length
     };
 
-    console.log('=== Webhook POST Request Received ===');
-    console.log(JSON.stringify(logData, null, 2));
-    console.log('=====================================');
+    console.log('=== COMPLETE WEBHOOK DATA ===');
+    console.log(JSON.stringify(fullLogData, null, 2));
+    console.log('=============================');
 
-    // 准备转发的数据
-    const forwardPayload = {
+    // 准备转发数据
+    const forwardData = {
       source: 'notion-webhook-edgeone',
       receivedAt: new Date().toISOString(),
-      originalRequest: {
-        method,
-        url,
-        headers,
-        body: parsedBody || body,
+      request: {
+        method: requestInfo.method,
+        url: requestInfo.url,
+        headers: allHeaders,
+        body: parsedBody || requestBody
       },
       metadata: {
-        userAgent,
-        contentType,
+        userAgent: requestInfo.userAgent,
+        contentType: requestInfo.contentType,
+        bodySize: requestBody.length
       }
     };
 
-    // 尝试转发到目标 webhook
-    let forwardResult = null;
+    // 尝试转发
+    let forwardStatus = null;
     try {
+      console.log('Attempting to forward to:', WEBHOOK_URL);
+      
       const forwardResponse = await fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'User-Agent': 'EdgeOne-Webhook-Forwarder'
         },
-        body: JSON.stringify(forwardPayload),
+        body: JSON.stringify(forwardData)
       });
 
-      forwardResult = {
+      const responseText = await forwardResponse.text();
+      
+      forwardStatus = {
         success: forwardResponse.ok,
         status: forwardResponse.status,
         statusText: forwardResponse.statusText,
+        responsePreview: responseText.slice(0, 500)
       };
 
-      console.log('Forward result:', forwardResult);
+      console.log('Forward completed:', forwardStatus);
+      
     } catch (forwardError) {
-      const errorMessage = forwardError instanceof Error ? forwardError.message : String(forwardError);
-      forwardResult = {
+      const errorMsg = forwardError instanceof Error ? forwardError.message : String(forwardError);
+      forwardStatus = {
         success: false,
-        error: errorMessage,
+        error: errorMsg
       };
-      console.log('Forward failed:', errorMessage);
+      console.log('Forward failed:', errorMsg);
     }
 
-    // 返回处理结果
-    const response = {
-      status: 'received',
+    // 返回成功响应
+    const successResponse = {
+      status: 'success',
+      message: 'Webhook received and processed',
       timestamp: new Date().toISOString(),
       received: {
-        method,
-        contentType,
-        bodyLength: body.length,
-        hasJsonBody: !!parsedBody,
+        method: requestInfo.method,
+        contentType: requestInfo.contentType,
+        bodyLength: requestBody.length,
+        hasJsonBody: !!parsedBody
       },
-      forward: forwardResult,
-      message: 'Request logged successfully'
+      forward: forwardStatus
     };
 
-    return new Response(JSON.stringify(response, null, 2), {
+    console.log('Sending success response');
+    
+    return new Response(JSON.stringify(successResponse, null, 2), {
       status: 200,
       headers: getHeaders(),
     });
 
-  } catch (error) {
-    console.error('Webhook error:', error);
+  } catch (mainError) {
+    const errorMsg = mainError instanceof Error ? mainError.message : String(mainError);
+    console.error('Main webhook error:', errorMsg);
     
-    const errorMessage = error instanceof Error ? error.message : String(error);
     const errorResponse = {
       status: 'error',
-      timestamp: new Date().toISOString(),
-      error: errorMessage,
-      message: 'Failed to process webhook request'
+      message: 'Webhook processing failed',
+      error: errorMsg,
+      timestamp: new Date().toISOString()
     };
 
     return new Response(JSON.stringify(errorResponse, null, 2), {
@@ -169,15 +198,18 @@ export async function onRequestPost(context: { request: Request; env?: any }) {
   }
 }
 
-// 兜底处理器 - 处理其他 HTTP 方法
+// 默认处理器
 export function onRequest(context: { request: Request; env?: any }) {
   const { request } = context;
   
+  console.log('Unhandled request:', request.method, request.url);
+  
   return new Response(JSON.stringify({
-    status: 'method_not_allowed',
+    status: 'method_not_supported',
     method: request.method,
-    message: 'Only GET, POST, and OPTIONS methods are supported',
-    timestamp: new Date().toISOString(),
+    supportedMethods: ['GET', 'POST', 'OPTIONS'],
+    message: 'This endpoint only supports GET, POST, and OPTIONS methods',
+    timestamp: new Date().toISOString()
   }, null, 2), {
     status: 405,
     headers: getHeaders(),

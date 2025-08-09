@@ -5,8 +5,30 @@
 
 const WEBHOOK_URL = 'https://pages-api.cloud.tencent.com/v1/webhook/925b3880bb6f19ce0dca0c5f0b43727c6f0e97b0fd1fecbde8b4f94d44fac2fe';
 
-// 导入查看器函数
-import { addRequest } from '../functions/webhook-viewer';
+// 简单的全局存储（用于在函数间共享数据）
+declare global {
+  var webhookRequests: any[];
+}
+
+// 初始化全局存储
+if (typeof globalThis.webhookRequests === 'undefined') {
+  globalThis.webhookRequests = [];
+}
+
+// 添加请求到历史记录
+function addRequestToHistory(requestData: any) {
+  const MAX_REQUESTS = 50;
+  globalThis.webhookRequests.unshift({
+    ...requestData,
+    id: Date.now(),
+    timestamp: new Date().toISOString()
+  });
+  
+  // 只保留最近的请求
+  if (globalThis.webhookRequests.length > MAX_REQUESTS) {
+    globalThis.webhookRequests = globalThis.webhookRequests.slice(0, MAX_REQUESTS);
+  }
+}
 
 // 通用响应头
 function getHeaders() {
@@ -113,9 +135,9 @@ export async function onRequestPost(context: { request: Request; env?: any }) {
     console.log('=============================');
 
     // 记录到查看器
+    // 记录到查看器
     try {
-      const { addRequest } = await import('../functions/webhook-viewer');
-      addRequest({
+      addRequestToHistory({
         method: requestInfo.method,
         url: requestInfo.url,
         headers: allHeaders,

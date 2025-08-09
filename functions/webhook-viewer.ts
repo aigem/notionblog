@@ -1,33 +1,22 @@
 /**
  * EdgeOne Pages Function: /webhook-viewer
- * 显示最近收到的webhook请求（简单版本，仅用于调试）
+ * 显示最近收到的webhook请求
  */
 
-// 简单的内存存储（重启后会丢失）
-let recentRequests: any[] = [];
-const MAX_REQUESTS = 50;
-
-// 添加请求到历史记录
-export function addRequest(requestData: any) {
-  recentRequests.unshift({
-    ...requestData,
-    id: Date.now(),
-    timestamp: new Date().toISOString()
-  });
-  
-  // 只保留最近的请求
-  if (recentRequests.length > MAX_REQUESTS) {
-    recentRequests = recentRequests.slice(0, MAX_REQUESTS);
-  }
+// 使用全局存储
+declare global {
+  var webhookRequests: any[];
 }
 
-// 获取请求历史
-export function getRecentRequests() {
-  return recentRequests;
+// 初始化全局存储
+if (typeof globalThis.webhookRequests === 'undefined') {
+  globalThis.webhookRequests = [];
 }
 
 // 处理GET请求 - 显示最近的webhook请求
 export function onRequestGet() {
+  const requests = globalThis.webhookRequests || [];
+  
   const html = `
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -124,50 +113,83 @@ export function onRequestGet() {
         </div>
         
         <div class="stats">
-            <strong>总请求数:</strong> ${recentRequests.length} 
-            <button class="refresh-btn" onclick="location.reload()">🔄 刷新</button>
+            <strong>总请求数:</strong> ${requests.length} 
+            <button class="refresh-btn" onclick="window.location.reload()">🔄 刷新</button>
         </div>
         
         <div class="requests">
-            ${recentRequests.length === 0 ? 
+            ${requests.length === 0 ? 
                 '<div class="no-requests">暂无请求记录<br><small>向 /notion-webhook 发送POST请求后，这里会显示内容</small></div>' :
-                recentRequests.map(req => `
-                    <div class="request-item">
-                        <div class="request-header">
-                            <div>
-                                <span class="method">${req.method || 'POST'}</span>
-                                <strong>${req.url || '/notion-webhook'}</strong>
-                            </div>
-                            <div class="timestamp">${new Date(req.timestamp).toLocaleString('zh-CN')}</div>
-                        </div>
-                        
-                        ${req.parsedBody ? `
-                            <div>
-                                <strong>JSON 数据:</strong>
-                                <div class="request-body">${JSON.stringify(req.parsedBody, null, 2)}</div>
-                            </div>
-                        ` : ''}
-                        
-                        ${req.rawBody ? `
-                            <div>
-                                <strong>原始数据:</strong>
-                                <div class="request-body">${req.rawBody}</div>
-                            </div>
-                        ` : ''}
-                        
+                requests.map(req => {
+                  const timestamp = req.timestamp ? new Date(req.timestamp).toLocaleString('zh-CN') : '未知时间';
+                  const method = req.method || 'POST';
+                  const url = req.url || '/notion-webhook';
+                  
+                  let bodySection = '';
+                  if (req.parsedBody) {
+                    try {
+                      bodySection += `
                         <div>
-                            <strong>请求头:</strong>
-                            <div class="request-body">${JSON.stringify(req.headers || {}, null, 2)}</div>
+                          <strong>JSON 数据:</strong>
+                          <div class="request-body">${JSON.stringify(req.parsedBody, null, 2)}</div>
                         </div>
+                      `;
+                    } catch (e) {
+                      // 忽略JSON序列化错误
+                    }
+                  }
+                  
+                  if (req.rawBody) {
+                    bodySection += `
+                      <div>
+                        <strong>原始数据:</strong>
+                        <div class="request-body">${req.rawBody}</div>
+                      </div>
+                    `;
+                  }
+                  
+                  let headersSection = '';
+                  if (req.headers) {
+                    try {
+                      headersSection = `
+                        <div>
+                          <strong>请求头:</strong>
+                          <div class="request-body">${JSON.stringify(req.headers, null, 2)}</div>
+                        </div>
+                      `;
+                    } catch (e) {
+                      headersSection = `
+                        <div>
+                          <strong>请求头:</strong>
+                          <div class="request-body">无法显示请求头</div>
+                        </div>
+                      `;
+                    }
+                  }
+                  
+                  return `
+                    <div class="request-item">
+                      <div class="request-header">
+                        <div>
+                          <span class="method">${method}</span>
+                          <strong>${url}</strong>
+                        </div>
+                        <div class="timestamp">${timestamp}</div>
+                      </div>
+                      ${bodySection}
+                      ${headersSection}
                     </div>
-                `).join('')
+                  `;
+                }).join('')
             }
         </div>
     </div>
     
     <script>
         // 每30秒自动刷新
-        setTimeout(() => location.reload(), 30000);
+        setTimeout(function() { 
+            window.location.reload(); 
+        }, 30000);
     </script>
 </body>
 </html>`;

@@ -1,19 +1,24 @@
 # Notion Blog
 
+## 一个基于 Next.js 15 和 Notion API 的现代化博客应用，支持静态导出和多平台部署。
+### [基于NotionAPI+Notion数据库+edgeone pages]
+### 使用notion写博客，可图文免图床，支持MD格式，更多功能开发中
+
+![alt text](public/notion_blog.svg)
 
 
-一个基于 Next.js 15 和 Notion API 的现代化博客应用，支持静态导出和多平台部署。
 
 ## ✨ 特性
 
 - 🚀 **Next.js 15** - 使用最新的 App Router 和 React Server Components
 - 📝 **Notion 集成** - 使用 Notion 作为内容管理系统
-- 🎨 **现代化设计** - 响应式设计，支持深色模式
+- 🎨 **现代化设计** - 响应式设计，支持多样式
 - ⚡ **静态导出** - 支持完全静态部署，无需服务器
-- 🔍 **SEO 优化** - 自动生成 sitemap 和 robots.txt
 - 📱 **移动端友好** - 完全响应式设计
-- 🔧 **TypeScript** - 完整的类型安全
-- 📊 **性能监控** - 内置性能监控和错误处理
+
+- [] 🔍 **SEO 优化** - 自动生成 sitemap 和 robots.txt
+- [] 🔧 **TypeScript** - 完整的类型安全
+- [] 📊 **性能监控** - 内置性能监控
 
 ## 🛠️ 技术栈
 
@@ -21,17 +26,28 @@
 - **语言**: TypeScript
 - **样式**: Tailwind CSS
 - **内容管理**: Notion API
+- **数据库**: Notion 数据库
 - **部署**: 支持 Vercel、Netlify、GitHub Pages 等
 
-## 📦 安装
+## 📦 安装部署
 
 ```bash
 # 克隆项目
-git clone <your-repo-url>
-cd notion-blog
+git clone https://github.com/aigem/notionblog.git
+cd notionblog
+
+# 修改.env.local
 
 # 安装依赖
 pnpm install
+
+# 测试
+pnpm static
+
+# 构建
+pnpm update-data
+
+#静态文件位于 out 目录
 ```
 
 ## ⚙️ 环境配置

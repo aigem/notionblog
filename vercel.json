@@ -4,7 +4,6 @@
   "outputDirectory": "out",
   "installCommand": "pnpm install",
   "framework": null,
-  "functions": {},
   "rewrites": [
     {
       "source": "/(.*)",
